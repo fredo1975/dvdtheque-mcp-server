@@ -1,9 +1,9 @@
 package fr.bluechipit.dvdtheque_mcp_server.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @Builder
@@ -14,10 +14,14 @@ public class Film {
     private Integer annee;
     private String titre;
     private String titreO;
-
-    @Override
-    public String toString() {
-        return String.format("Film[id=%d, titre='%s', titreO='%s', annee=%d]",
-                id, titre, titreO,annee);
-    }
+    private Date dateSortie;
+    private Date dateInsertion;
+    private Date dateSortieDvd;
+    private boolean vu;
+    private String posterPath;
+    private LocalDate dateVue;
+    private Integer runtime;
+    private String overview;
+    private FilmOrigine origine;
+    private PersonnesFilm personnesFilm;
 }
