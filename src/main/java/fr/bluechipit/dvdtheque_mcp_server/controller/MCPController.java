@@ -7,6 +7,8 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
 
@@ -24,30 +26,35 @@ public class MCPController {
     }
 
     @PostMapping("/chat")
-    public ResponseEntity<Map<String, String>> chat(@RequestBody Map<String, String> request) {
+    public Mono<ResponseEntity<Map<String, String>>> chat(@RequestBody Map<String, String> request) {
         String userMessage = request.get("message");
         String conversationId = request.getOrDefault("conversationId", "default");
 
         log.info("Traitement du message: {}", userMessage);
         PromptTemplate pt = new PromptTemplate(userMessage);
-        try {
-            String response = this.chatClient.prompt(pt.create())
-                    .call()
-                    .content();
+        return Mono.fromCallable(() -> {
+                    // --> remplacer par votre appel existant bloquant
+                    // par ex: var resp = chatClient.call(...).content(...);
+                    // ici on simule la construction de la réponse à partir du client
+                    var response = this.chatClient.prompt(pt.create())
+                            .call()
+                            .content();
+                    log.info(response);
+                    // NE PAS faire resp.block() ici ; on retourne la représentation synchrone produite
+                    return Map.of(
+                            "response", response,
+                            "conversationId", conversationId
+                    );
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(ResponseEntity::ok)
+                .onErrorResume(ex ->
+                        Mono.just(ResponseEntity.ok(Map.of(
+                                        "response", "Désolé, une erreur s'est produite: " + ex.getMessage(),
+                                        "conversationId", conversationId
+                                )))
+                        );
 
-            log.info("Réponse générée: {}", response);
-
-            return ResponseEntity.ok(Map.of(
-                    "response", response,
-                    "conversationId", conversationId
-            ));
-        } catch (Exception e) {
-            log.error("Erreur lors du traitement du message", e);
-            return ResponseEntity.ok(Map.of(
-                    "response", "Désolé, une erreur s'est produite: " + e.getMessage(),
-                    "conversationId", conversationId
-            ));
-        }
     }
 
     @GetMapping("/health")
