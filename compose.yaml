@@ -1,0 +1,8 @@
+services:
+  dvdtheque-mcp-server:
+    build:
+      context: .
+    container_name: dvdtheque-mcp-server
+    restart: on-failure
+    environment:
+      SERVER_PORT: 8060

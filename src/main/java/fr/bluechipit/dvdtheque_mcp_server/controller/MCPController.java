@@ -24,12 +24,16 @@ public class MCPController {
         this.chatClient = chat.defaultTools(toolCallbackProvider)
                 .build();
     }
-
+    //@RolesAllowed("user")
     @PostMapping("/chat")
     public Mono<ResponseEntity<Map<String, String>>> chat(@RequestBody Map<String, String> request) {
         String userMessage = request.get("message");
         String conversationId = request.getOrDefault("conversationId", "default");
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //String username = auth.getName();
 
+        //System.out.println("Message reçu de " + username + ": " + userMessage);
+        //log.info("Traitement du message: {} reçu de {}", userMessage,username);
         log.info("Traitement du message: {}", userMessage);
         PromptTemplate pt = new PromptTemplate(userMessage);
         return Mono.fromCallable(() -> {
