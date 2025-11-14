@@ -1,11 +1,14 @@
 package fr.bluechipit.dvdtheque_mcp_server;
 
+import fr.bluechipit.dvdtheque_mcp_server.config.JwtTokenInterceptor;
 import fr.bluechipit.dvdtheque_mcp_server.service.DVDthequeService;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
@@ -16,8 +19,14 @@ public class DvdthequeMcpServerApplication {
 	}
 
 	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
+	public RestTemplate restTemplate(RestTemplateBuilder builder) {
+		return builder
+				.interceptors(jwtInterceptor())
+				.build();
+	}
+	@Bean
+	public ClientHttpRequestInterceptor jwtInterceptor() {
+		return new JwtTokenInterceptor();
 	}
 	@Bean
 	public ToolCallbackProvider tools(DVDthequeService dVDthequeService) {
